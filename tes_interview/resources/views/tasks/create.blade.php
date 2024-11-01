@@ -18,15 +18,25 @@
         </div>
     @endif
 
-    <form action="{{ route('tasks.store') }}" method="POST">
+    <!-- Form untuk menambahkan tugas dengan unggahan gambar -->
+    <form action="{{ route('tasks.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
-        <label for="name">Nama Tugas:</label>
-        <input type="text" id="name" name="name" value="{{ old('name') }}" required>
-
-        <label for="description">Deskripsi:</label>
-        <textarea id="description" name="description">{{ old('description') }}</textarea>
-
-        <button type="submit">Tambahkan Tugas</button>
+        <div class="form-group">
+            <label for="name">Nama Tugas</label>
+            <input type="text" name="name" class="form-control" value="{{ old('name') }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="description">Deskripsi</label>
+            <textarea name="description" class="form-control">{{ old('description') }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="image">Unggah Gambar (JPG, PNG)</label>
+            <input type="file" name="image" class="form-control" accept="image/jpeg,image/png">
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Tambah Tugas</button>
     </form>
 
     <a href="{{ url('/') }}">Kembali ke Home</a>

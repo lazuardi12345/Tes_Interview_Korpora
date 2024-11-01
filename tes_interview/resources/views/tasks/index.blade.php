@@ -1,4 +1,4 @@
-@extends('layouts.app') <!-- Pastikan ini sesuai dengan layout yang Anda buat -->
+@extends('layouts.app')
 
 @section('content')
 <div class="container">
@@ -15,29 +15,32 @@
             <tr>
                 <th>Nama Tugas</th>
                 <th>Deskripsi</th>
+                <th>Gambar</th>
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             @forelse($tasks as $task)
-                <tr>
+                <tr data-task-id="{{ $task->id }}">
                     <td>{{ $task->name }}</td>
                     <td>{{ $task->description }}</td>
-                    <td>{{ $task->status }}</td>
                     <td>
-                        <!-- Tambahkan aksi seperti edit dan delete di sini -->
-                        <a href="#" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="#" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
-                        </form>
+                        @if($task->image_path)
+                            <img src="{{ asset('storage/' . $task->image_path) }}" alt="Gambar Tugas" width="100">
+                        @else
+                            Tidak ada gambar
+                        @endif
+                    </td>
+                    <td class="task-status">{{ $task->status }}</td>
+                    <td>
+                        <button class="btn btn-success btn-sm mark-complete" data-id="{{ $task->id }}">Selesaikan</button>
+                        <button class="btn btn-danger btn-sm delete-task" data-id="{{ $task->id }}">Hapus</button>
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="4" class="text-center">Tidak ada tugas yang ditemukan.</td>
+                    <td colspan="5" class="text-center">Tidak ada tugas yang ditemukan.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -45,4 +48,56 @@
 
     <a href="{{ route('tasks.create') }}" class="btn btn-primary">Tambah Tugas Baru</a>
 </div>
+
+<!-- Menyertakan jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    // Mengatur CSRF token untuk semua request AJAX
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+
+    // Menandai tugas sebagai selesai
+    $('.mark-complete').click(function() {
+        var taskId = $(this).data('id');
+        var row = $(this).closest('tr');
+
+        $.ajax({
+            url: '/tasks/' + taskId + '/complete',
+            type: 'PATCH',
+            success: function(response) {
+                row.find('.task-status').text('completed');
+                alert(response.success);
+            },
+            error: function(xhr) {
+                alert('Terjadi kesalahan. Tugas tidak bisa ditandai sebagai selesai.');
+            }
+        });
+    });
+
+    // Menghapus tugas
+    $('.delete-task').click(function() {
+        var taskId = $(this).data('id');
+        var row = $(this).closest('tr');
+
+        if (confirm('Apakah Anda yakin ingin menghapus tugas ini?')) {
+            $.ajax({
+                url: '/tasks/' + taskId,
+                type: 'DELETE',
+                success: function(response) {
+                    row.remove();
+                    alert(response.success);
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan. Tugas tidak bisa dihapus.');
+                }
+            });
+        }
+    });
+});
+</script>
 @endsection
