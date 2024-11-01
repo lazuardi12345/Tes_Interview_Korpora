@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\Validator;
 
 class TaskController extends Controller
 {
+
+// Menampilkan daftar tugas
+public function index()
+{
+    // Mengambil semua tugas yang terkait dengan pengguna yang sedang login
+    $tasks = Task::where('user_id', Auth::id())->get();
+
+    return view('tasks.index', compact('tasks'));
+}
+
+
+
     // Menampilkan formulir untuk menambah tugas
     public function create()
     {
@@ -28,12 +40,12 @@ class TaskController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Menyimpan tugas ke database
+        
         Task::create([
             'name' => $request->name,
             'description' => $request->description,
-            'status' => 'pending', // Status default
-            'user_id' => Auth::id(), // Mengaitkan dengan pengguna yang sedang login
+            'status' => 'pending', 
+            'user_id' => Auth::id(), 
         ]);
 
         return redirect()->route('tasks.index')->with('success', 'Tugas berhasil ditambahkan!');

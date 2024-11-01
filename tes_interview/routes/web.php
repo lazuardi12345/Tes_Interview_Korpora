@@ -1,6 +1,7 @@
 <?php
 
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
+use App\Http\Controllers\TaskController;
 
 Route::middleware(['web'])
     ->group(function () {
@@ -25,8 +26,10 @@ Route::middleware(['web'])
             return view('home');
         })->middleware('auth');
 
-        // Rute untuk membuat dan menyimpan tugas
-        Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create')->middleware('auth');
-        Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store')->middleware('auth');
+        Route::get('/tasks', [TaskController::class, 'index'])->name('tasks.index');
+    
+    // Rute untuk membuat dan menyimpan tugas
+         Route::get('/tasks/create', [TaskController::class, 'create'])->name('tasks.create');
+        Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
     });
 
